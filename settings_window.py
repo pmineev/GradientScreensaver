@@ -26,6 +26,8 @@ class SettingsWindow(QMainWindow):
 
         self.gradientWindow = GradientWindow()
 
+        self._load_palette()
+
         # self._test_table()
 
     def _init_ui(self):
@@ -197,9 +199,7 @@ class SettingsWindow(QMainWindow):
 
         self.errorLabel.setText(f'палитра сохранена в {filename}')
 
-    @pyqtSlot()
-    def on_load(self):
-        filename = 'palette.json'
+    def _load_palette(self, filename='palette.json'):
         try:
             with open(filename) as f:
                 rgb_colors = json.load(f)
@@ -221,6 +221,10 @@ class SettingsWindow(QMainWindow):
             pass
         except json.JSONDecodeError:
             self.errorLabel.setText(f'в {filename} ошибка')
+
+    @pyqtSlot()
+    def on_load(self):
+        self._load_palette()
 
 
 if __name__ == "__main__":
