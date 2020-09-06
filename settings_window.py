@@ -3,7 +3,7 @@ import json
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QMainWindow, QColorDialog, QTableWidgetItem, QApplication, QHBoxLayout, QLabel, QLineEdit, \
-    QPushButton, QTableWidget, QVBoxLayout, QWidget
+    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog
 
 from gradient_window import GradientWindow
 
@@ -193,11 +193,12 @@ class SettingsWindow(QMainWindow):
         colors = [item.background().color() for item in items]
         rgb_colors = [color.getRgb() for color in colors]
 
-        filename = 'palette.json'
-        with open(filename, 'w') as f:
-            json.dump(rgb_colors, f)
+        filename = QFileDialog.getSaveFileName(directory='palette.json')[0]
+        if filename:
+            with open(filename, 'w') as f:
+                json.dump(rgb_colors, f)
 
-        self.errorLabel.setText(f'палитра сохранена в {filename}')
+            self.errorLabel.setText(f'палитра сохранена в {filename}')
 
     def _load_palette(self, filename='palette.json'):
         try:
@@ -224,7 +225,9 @@ class SettingsWindow(QMainWindow):
 
     @pyqtSlot()
     def on_load(self):
-        self._load_palette()
+        filename = QFileDialog.getOpenFileName()[0]
+        if filename:
+            self._load_palette(filename)
 
 
 if __name__ == "__main__":
