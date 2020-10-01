@@ -3,7 +3,7 @@ import json
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QMainWindow, QColorDialog, QTableWidgetItem, QApplication, QHBoxLayout, QLabel, QLineEdit, \
-    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog
+    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog, QTableWidgetSelectionRange
 
 from gradient_window import GradientWindow
 
@@ -125,28 +125,36 @@ class SettingsWindow(QMainWindow):
         table: QTableWidget = self.colorTable
 
         selected = table.selectedIndexes()
-        rows = [index.row() for index in selected]
+        if selected:
+            rows = [index.row() for index in selected]
 
-        prev_row = 0
-        for row in sorted(rows):
-            if row > prev_row:
-                SettingsWindow._swap_items(table, row, 0, row - 1, 0)
-            else:
-                prev_row += 1
+            prev_row = 0
+            for row in sorted(rows):
+                if row > prev_row:
+                    SettingsWindow._swap_items(table, row, 0, row - 1, 0)
+                else:
+                    prev_row += 1
+
+            table.clearSelection()
+            table.setRangeSelected(QTableWidgetSelectionRange(min(rows)-1, 0, max(rows)-1, 0), True)
 
     @pyqtSlot()
     def on_down(self):
         table: QTableWidget = self.colorTable
 
         selected = table.selectedIndexes()
-        rows = [index.row() for index in selected]
+        if selected:
+            rows = [index.row() for index in selected]
 
-        next_row = table.rowCount() - 1
-        for row in sorted(rows, reverse=True):
-            if row < next_row:
-                SettingsWindow._swap_items(table, row, 0, row + 1, 0)
-            else:
-                next_row -= 1
+            next_row = table.rowCount() - 1
+            for row in sorted(rows, reverse=True):
+                if row < next_row:
+                    SettingsWindow._swap_items(table, row, 0, row + 1, 0)
+                else:
+                    next_row -= 1
+
+            table.clearSelection()
+            table.setRangeSelected(QTableWidgetSelectionRange(min(rows)+1, 0, max(rows)+1, 0), True)
 
     @pyqtSlot()
     def on_start(self):
