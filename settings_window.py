@@ -1,9 +1,9 @@
 import json
 
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QTime
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QMainWindow, QColorDialog, QTableWidgetItem, QApplication, QHBoxLayout, QLabel, QLineEdit, \
-    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog, QTableWidgetSelectionRange
+    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog, QTableWidgetSelectionRange, QTimeEdit
 
 from gradient_window import GradientWindow
 
@@ -57,8 +57,12 @@ class SettingsWindow(QMainWindow):
         self.buttonsLayout.addStretch()
 
         self.intervalsLayout = QVBoxLayout()
-        self.delayInput = QLineEdit()
-        self.repeatInput = QLineEdit()
+        self.delayInput = QTimeEdit()
+        self.delayInput.setDisplayFormat('hh:mm:ss')
+        self.delayInput.setMinimumTime(QTime(0, 0, 1))
+        self.repeatInput = QTimeEdit()
+        self.repeatInput.setDisplayFormat('hh:mm:ss')
+        self.repeatInput.setMinimumTime(QTime(0, 0, 1))
         self.errorLabel = QLabel()
         self.startButton = QPushButton('Запустить')
         self.intervalsLayout.addWidget(QLabel('Первый цвет'))
@@ -171,21 +175,21 @@ class SettingsWindow(QMainWindow):
             self.errorLabel.setText('давай побольше цветов')
             return
 
-        delay_text = self.delayInput.text()
-        repeat_text = self.repeatInput.text()
-        if not (delay_text and repeat_text):
-            self.errorLabel.setText('интервалы напиши')
-            return
+        # delay_text = self.delayInput.text()
+        # repeat_text = self.repeatInput.text()
+        # if not (delay_text and repeat_text):
+        #     self.errorLabel.setText('интервалы напиши')
+        #     return
 
-        if not (delay_text and delay_text.isdigit() and repeat_text and repeat_text.isdigit()):
-            self.errorLabel.setText('нормально интервалы напиши')
-            return
+        # if not (delay_text and delay_text.isdigit() and repeat_text and repeat_text.isdigit()):
+        #     self.errorLabel.setText('нормально интервалы напиши')
+        #     return
 
         if self.errorLabel.text():
             self.errorLabel.setText('молодец')
 
-        delay = int(self.delayInput.text())
-        repeat_interval = int(self.repeatInput.text())
+        delay = QTime(0, 0).secsTo(self.delayInput.time())
+        repeat_interval = QTime(0, 0).secsTo(self.repeatInput.time()) 
 
         self.gradientWindow.set_colors(colors)
         self.gradientWindow.set_timers(delay, repeat_interval)
