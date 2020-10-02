@@ -3,7 +3,7 @@ import json
 from PyQt5.QtCore import pyqtSlot, QTime
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QMainWindow, QColorDialog, QTableWidgetItem, QApplication, QHBoxLayout, QLabel, QLineEdit, \
-    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog, QTableWidgetSelectionRange, QTimeEdit
+    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog, QTableWidgetSelectionRange, QTimeEdit, QTabWidget
 
 from gradient_window import GradientWindow
 
@@ -30,8 +30,11 @@ class SettingsWindow(QMainWindow):
 
         # self._test_table()
 
-    def _init_ui(self):
-        self.topLayout = QHBoxLayout()
+    def _create_color_tab(self):
+        self.colorWidget = QWidget()
+        self.colorWidget.setAutoFillBackground(True)
+
+        self.colorsLayout = QHBoxLayout()
 
         self.colorTable = QTableWidget()
         self.colorTable.setRowCount(0)
@@ -41,20 +44,27 @@ class SettingsWindow(QMainWindow):
         self.colorTable.setMaximumWidth(40)
         self.colorTable.setColumnWidth(20, 30)
 
-        self.buttonsLayout = QVBoxLayout()
+        self.colorButtonsLayout = QVBoxLayout()
         self.addButton = QPushButton('Добавить')
         self.upButton = QPushButton('Вверх')
         self.downButton = QPushButton('Вниз')
         self.deleteButton = QPushButton('Удалить')
-        self.saveButton = QPushButton('Сохранить')
-        self.loadButton = QPushButton('Загрузить')
-        self.buttonsLayout.addWidget(self.addButton)
-        self.buttonsLayout.addWidget(self.upButton)
-        self.buttonsLayout.addWidget(self.downButton)
-        self.buttonsLayout.addWidget(self.deleteButton)
-        self.buttonsLayout.addWidget(self.saveButton)
-        self.buttonsLayout.addWidget(self.loadButton)
-        self.buttonsLayout.addStretch()
+        self.colorButtonsLayout.addWidget(self.addButton)
+        self.colorButtonsLayout.addWidget(self.upButton)
+        self.colorButtonsLayout.addWidget(self.downButton)
+        self.colorButtonsLayout.addWidget(self.deleteButton)
+        self.colorButtonsLayout.addStretch()
+
+        self.colorsLayout.addWidget(self.colorTable)
+        self.colorsLayout.addStretch()
+        self.colorsLayout.addLayout(self.colorButtonsLayout)
+        self.colorWidget.setLayout(self.colorsLayout)
+
+        return self.colorWidget
+
+    def _create_intervals_tab(self):
+        self.intervalsWidget = QWidget()        
+        self.intervalsWidget.setAutoFillBackground(True)
 
         self.intervalsLayout = QVBoxLayout()
         self.delayInput = QTimeEdit()
@@ -63,22 +73,44 @@ class SettingsWindow(QMainWindow):
         self.repeatInput = QTimeEdit()
         self.repeatInput.setDisplayFormat('hh:mm:ss')
         self.repeatInput.setMinimumTime(QTime(0, 0, 1))
-        self.errorLabel = QLabel()
-        self.startButton = QPushButton('Запустить')
         self.intervalsLayout.addWidget(QLabel('Первый цвет'))
         self.intervalsLayout.addWidget(self.delayInput)
         self.intervalsLayout.addWidget(QLabel('Интервал'))
         self.intervalsLayout.addWidget(self.repeatInput)
-        self.intervalsLayout.addWidget(self.errorLabel)
-        self.intervalsLayout.addWidget(self.startButton)
+        self.intervalsLayout.addStretch()
 
-        self.topLayout.addWidget(self.colorTable)
-        self.topLayout.addLayout(self.buttonsLayout)
-        self.topLayout.addLayout(self.intervalsLayout)
+        self.intervalsWidget.setLayout(self.intervalsLayout)
 
-        self.centralWidget = QWidget()
-        self.centralWidget.setLayout(self.topLayout)
-        self.setCentralWidget(self.centralWidget)
+        return self.intervalsWidget
+
+    def _init_ui(self):
+        self.central = QWidget()
+
+        self.centralLayout = QVBoxLayout()
+
+        self.tabWidget = QTabWidget()
+        self.tabWidget.addTab(self._create_color_tab(), 'Цвета')
+        self.tabWidget.addTab(self._create_intervals_tab(), 'Интервалы')
+
+        self.centralLayout.addWidget(self.tabWidget)
+
+        self.errorLabel = QLabel()
+
+        self.centralLayout.addWidget(self.errorLabel)
+
+        self.settingsButtonsLayout = QHBoxLayout()
+        self.saveButton = QPushButton('Сохранить')
+        self.loadButton = QPushButton('Загрузить')
+        self.startButton = QPushButton('Запустить')
+        self.settingsButtonsLayout.addWidget(self.saveButton)
+        self.settingsButtonsLayout.addWidget(self.loadButton)
+        self.settingsButtonsLayout.addWidget(self.startButton)
+
+        self.centralLayout.addLayout(self.settingsButtonsLayout)
+
+        self.central.setLayout(self.centralLayout)
+
+        self.setCentralWidget(self.central)
 
     def _test_table(self):
         table: QTableWidget = self.colorTable
