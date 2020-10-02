@@ -26,7 +26,7 @@ class SettingsWindow(QMainWindow):
 
         self.gradientWindow = GradientWindow()
 
-        self._load_palette()
+        self._load_settings()
 
         # self._test_table()
 
@@ -233,26 +233,32 @@ class SettingsWindow(QMainWindow):
     def on_save(self):
         table: QTableWidget = self.colorTable
 
+        settings = dict()
+
         items = [table.item(row, 0) for row in range(table.rowCount())]
         colors = [item.background().color() for item in items]
         rgb_colors = [color.getRgb() for color in colors]
+        
+        settings['colors'] = rgb_colors
+        settings['delay'] = QTime(0, 0).secsTo(self.delayInput.time())
+        settings['repeat_interval'] = QTime(0, 0).secsTo(self.repeatInput.time()) 
 
-        filename = QFileDialog.getSaveFileName(directory='palette.json')[0]
+        filename = QFileDialog.getSaveFileName(directory='settings.json')[0]
         if filename:
             with open(filename, 'w') as f:
-                json.dump(rgb_colors, f)
+                json.dump(settings, f)
 
-            self.errorLabel.setText(f'палитра сохранена в {filename}')
+            self.errorLabel.setText(f'настройки сохранены в {filename}')
 
-    def _load_palette(self, filename='palette.json'):
+    def _load_settings(self, filename='settings.json'):
         try:
             with open(filename) as f:
-                rgb_colors = json.load(f)
+                settings = json.load(f)
 
                 table: QTableWidget = self.colorTable
                 table.setRowCount(0)
 
-                for rgb_color in rgb_colors:
+                for rgb_color in settings['colors']:
                     color = QColor.fromRgb(*rgb_color)
 
                     item = QTableWidgetItem()
@@ -260,18 +266,21 @@ class SettingsWindow(QMainWindow):
 
                     table.insertRow(table.rowCount())
                     table.setItem(table.rowCount() - 1, 0, item)
-            self.errorLabel.setText(f'палитра загружена из {filename}')
+
+                self.delayInput.setTime(QTime().addSecs(settings['delay']))
+                self.repeatInput.setTime(QTime().addSecs(settings['repeat_interval']))
+            self.errorLabel.setText(f'настройки загружены из {filename}')
 
         except FileNotFoundError:
             pass
-        except json.JSONDecodeError:
+        except json.JSONDecodeError or KeyError or TypeError:
             self.errorLabel.setText(f'в {filename} ошибка')
 
     @pyqtSlot()
     def on_load(self):
         filename = QFileDialog.getOpenFileName()[0]
         if filename:
-            self._load_palette(filename)
+            self._load_settings(filename)
 
 
 if __name__ == "__main__":
