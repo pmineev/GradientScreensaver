@@ -83,7 +83,7 @@ class GradientWindow(QWidget):
             self.last_color = self.current_color
             self.next_color = self.current_color
             self.repaint()
-            self.timer.start(self.delay)
+            self.timer.start(1000 * self.delay)
 
             self.state = States.NEXT_COLOR
         elif self.state == States.NEXT_COLOR:
@@ -98,7 +98,8 @@ class GradientWindow(QWidget):
             self.next_color = color
 
             self.repeat_count = GradientWindow.get_repeat_count(self.last_color, self.next_color)
-            self.timer.start(int(self.repeat_interval / self.repeat_count))
+            repaint_interval_msec = int(1000 * self.repeat_interval / self.repeat_count)
+            self.timer.start(repaint_interval_msec)
 
             self.state = States.REPEAT
         elif self.state == States.REPEAT:
