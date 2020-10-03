@@ -268,8 +268,8 @@ class SettingsWindow(QMainWindow):
                     table.insertRow(table.rowCount())
                     table.setItem(table.rowCount() - 1, 0, item)
 
-                self.delayInput.setTime(QTime().addSecs(settings['delay']))
-                self.repeatInput.setTime(QTime().addSecs(settings['repeat_interval']))
+                self.delayInput.setTime(QTime(0, 0).addSecs(settings['delay']))
+                self.repeatInput.setTime(QTime(0, 0).addSecs(settings['repeat_interval']))
             self.errorLabel.setText(f'настройки загружены из {filename}')
 
         except FileNotFoundError:
