@@ -9,7 +9,7 @@ from gradient_window import GradientWindow
 
 
 class SettingsWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, screens):
         super().__init__()
 
         self._init_ui()
@@ -24,7 +24,7 @@ class SettingsWindow(QMainWindow):
         self.saveButton.clicked.connect(self.on_save)
         self.loadButton.clicked.connect(self.on_load)
 
-        self.gradientWindow = GradientWindow()
+        self.gradientWindows = [GradientWindow(screen) for screen in screens]
 
         self._load_settings()
 
@@ -223,11 +223,12 @@ class SettingsWindow(QMainWindow):
         delay = QTime(0, 0).secsTo(self.delayInput.time())
         repeat_interval = QTime(0, 0).secsTo(self.repeatInput.time()) 
 
-        self.gradientWindow.set_colors(colors)
-        self.gradientWindow.set_timers(delay, repeat_interval)
+        for gradientWindow in self.gradientWindows:
+            gradientWindow.set_colors(colors)
+            gradientWindow.set_timers(delay, repeat_interval)
 
-        self.gradientWindow.showFullScreen()
-        self.gradientWindow.run()
+            gradientWindow.showFullScreen()
+            gradientWindow.run()
 
     @pyqtSlot()
     def on_save(self):
@@ -287,6 +288,6 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    w = SettingsWindow()
+    w = SettingsWindow(app.screens())
     w.show()
     sys.exit(app.exec_())

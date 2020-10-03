@@ -4,7 +4,7 @@ from enum import Enum
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSlot
 from PyQt5.QtGui import QPainter, QColor, QPen, QBrush
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QWidget
 
 import easing
 
@@ -16,10 +16,16 @@ class States(Enum):
     REPEAT = 3
 
 
-class GradientWindow(QMainWindow):
+class GradientWindow(QWidget):
 
-    def __init__(self):
+    def __init__(self, screen):
         super().__init__()
+
+        self.setAttribute(Qt.WA_NativeWindow)
+
+        self.screen = screen
+        self.windowHandle().setScreen(screen)
+        self.setGeometry(screen.geometry())
 
         self.state = States.DELAY
         self.last_color = QColor(255, 255, 255)
