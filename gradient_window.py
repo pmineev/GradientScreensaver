@@ -22,26 +22,18 @@ class GradientWindow(QWidget):
         super().__init__()
 
         self.setAttribute(Qt.WA_NativeWindow)
-
         self.screen = screen
         self.windowHandle().setScreen(screen)
         self.setGeometry(screen.geometry())
 
-        self.state = States.DELAY
-        self.last_color = QColor(255, 255, 255)
-        self.current_color = QColor(255, 255, 255)
-        self.next_color = QColor(0, 0, 0)
+        self.colors = []
+        self.delay = self.repeat_interval = 0
 
-        self.delta_color = Qt.gray
-        self.repeat_count = 0
-        self.repeated_count = 0
+        self.state = States.DELAY
+        self.last_color = self.current_color = self.next_color = Qt.black
+        self.repeat_count = self.repeated_count = 0
 
         self.timer = QTimer(self)
-
-        self.colors = []
-        self.delay = 0
-        self.repeat_interval = 0
-
         self.timer.timeout.connect(self.run)
 
     def set_colors(self, colors):
@@ -76,37 +68,38 @@ class GradientWindow(QWidget):
                        int(blue * 255))
         return mixed
 
+    def _another_color(self, color):
+        another = random.choice(self.colors)
+        while another == color:
+            another = random.choice(self.colors)
+
+        return another
+
     @pyqtSlot()
     def run(self):
         if self.state == States.DELAY:
-            self.current_color = random.choice(self.colors)
-            self.last_color = self.current_color
-            self.next_color = self.current_color
-            self.repaint()
+            self.last_color = self.current_color = self.next_color = random.choice(self.colors)
+            self.update()
             self.timer.start(1000 * self.delay)
 
             self.state = States.NEXT_COLOR
         elif self.state == States.NEXT_COLOR:
             self.timer.stop()
 
-            color = random.choice(self.colors)
-            while color == self.next_color:
-                color = random.choice(self.colors)
-
-            self.current_color = self.next_color
-            self.last_color = self.next_color
-            self.next_color = color
+            self.last_color, self.next_color = self.next_color, self._another_color(self.next_color)
+            self.current_color = self.last_color
 
             self.repeat_count = GradientWindow.get_repeat_count(self.last_color, self.next_color)
             repaint_interval_msec = int(1000 * self.repeat_interval / self.repeat_count)
             self.timer.start(repaint_interval_msec)
 
+            self.repeated_count = 0
             self.state = States.REPEAT
         elif self.state == States.REPEAT:
             if self.repeated_count <= self.repeat_count:
                 self.current_color = GradientWindow.mix_colors(self.last_color, self.next_color,
                                                                self.repeated_count / self.repeat_count)
-                self.repaint()
+                self.update()
                 self.repeated_count += 1
             else:
                 self.repeated_count = 0

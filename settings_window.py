@@ -2,8 +2,21 @@ import json
 
 from PyQt5.QtCore import pyqtSlot, QTime
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QMainWindow, QColorDialog, QTableWidgetItem, QApplication, QHBoxLayout, QLabel, QLineEdit, \
-    QPushButton, QTableWidget, QVBoxLayout, QWidget, QFileDialog, QTableWidgetSelectionRange, QTimeEdit, QTabWidget
+from PyQt5.QtWidgets import (
+    QMainWindow,
+    QColorDialog,
+    QTableWidgetItem,
+    QApplication, QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTableWidget,
+    QVBoxLayout,
+    QWidget,
+    QFileDialog,
+    QTableWidgetSelectionRange,
+    QTimeEdit,
+    QTabWidget
+)
 
 from gradient_window import GradientWindow
 
@@ -13,8 +26,6 @@ class SettingsWindow(QMainWindow):
         super().__init__()
 
         self._init_ui()
-
-        # uic.loadUi("settings_window.ui", self)
 
         self.addButton.clicked.connect(self.on_add)
         self.deleteButton.clicked.connect(self.on_delete)
@@ -27,8 +38,6 @@ class SettingsWindow(QMainWindow):
         self.gradientWindows = [GradientWindow(screen) for screen in screens]
 
         self._load_settings()
-
-        # self._test_table()
 
     def _create_color_tab(self):
         self.colorWidget = QWidget()
@@ -63,7 +72,7 @@ class SettingsWindow(QMainWindow):
         return self.colorWidget
 
     def _create_intervals_tab(self):
-        self.intervalsWidget = QWidget()        
+        self.intervalsWidget = QWidget()
         self.intervalsWidget.setAutoFillBackground(True)
 
         self.intervalsLayout = QVBoxLayout()
@@ -112,25 +121,6 @@ class SettingsWindow(QMainWindow):
 
         self.setCentralWidget(self.central)
 
-    def _test_table(self):
-        table: QTableWidget = self.colorTable
-        table.setRowCount(3)
-
-        item = QTableWidgetItem()
-        item.setBackground(QColor(254, 1, 2))
-        table.setItem(0, 0, item)
-
-        item = QTableWidgetItem()
-        item.setBackground(QColor(3, 253, 4))
-        table.setItem(1, 0, item)
-
-        item = QTableWidgetItem()
-        item.setBackground(QColor(5, 6, 252))
-        table.setItem(2, 0, item)
-
-        self.delayInput.setText('1000')
-        self.repeatInput.setText('2000')
-
     @pyqtSlot()
     def on_add(self):
         color = QColorDialog.getColor()
@@ -172,7 +162,7 @@ class SettingsWindow(QMainWindow):
                     prev_row += 1
 
             table.clearSelection()
-            table.setRangeSelected(QTableWidgetSelectionRange(min(rows)-1, 0, max(rows)-1, 0), True)
+            table.setRangeSelected(QTableWidgetSelectionRange(min(rows) - 1, 0, max(rows) - 1, 0), True)
 
     @pyqtSlot()
     def on_down(self):
@@ -190,7 +180,7 @@ class SettingsWindow(QMainWindow):
                     next_row -= 1
 
             table.clearSelection()
-            table.setRangeSelected(QTableWidgetSelectionRange(min(rows)+1, 0, max(rows)+1, 0), True)
+            table.setRangeSelected(QTableWidgetSelectionRange(min(rows) + 1, 0, max(rows) + 1, 0), True)
 
     @pyqtSlot()
     def on_start(self):
@@ -207,21 +197,11 @@ class SettingsWindow(QMainWindow):
             self.errorLabel.setText('давай побольше цветов')
             return
 
-        # delay_text = self.delayInput.text()
-        # repeat_text = self.repeatInput.text()
-        # if not (delay_text and repeat_text):
-        #     self.errorLabel.setText('интервалы напиши')
-        #     return
-
-        # if not (delay_text and delay_text.isdigit() and repeat_text and repeat_text.isdigit()):
-        #     self.errorLabel.setText('нормально интервалы напиши')
-        #     return
-
         if self.errorLabel.text():
             self.errorLabel.setText('молодец')
 
         delay = QTime(0, 0).secsTo(self.delayInput.time())
-        repeat_interval = QTime(0, 0).secsTo(self.repeatInput.time()) 
+        repeat_interval = QTime(0, 0).secsTo(self.repeatInput.time())
 
         for gradientWindow in self.gradientWindows:
             gradientWindow.set_colors(colors)
@@ -239,10 +219,10 @@ class SettingsWindow(QMainWindow):
         items = [table.item(row, 0) for row in range(table.rowCount())]
         colors = [item.background().color() for item in items]
         rgb_colors = [color.getRgb() for color in colors]
-        
+
         settings['colors'] = rgb_colors
         settings['delay'] = QTime(0, 0).secsTo(self.delayInput.time())
-        settings['repeat_interval'] = QTime(0, 0).secsTo(self.repeatInput.time()) 
+        settings['repeat_interval'] = QTime(0, 0).secsTo(self.repeatInput.time())
 
         filename = QFileDialog.getSaveFileName(directory='settings.json')[0]
         if filename:
