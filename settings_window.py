@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
     QTabWidget
 )
 
-from gradient_window import GradientWindow
+from gradient_window_controller import GradientWindowController
 
 
 class SettingsWindow(QMainWindow):
@@ -35,7 +35,7 @@ class SettingsWindow(QMainWindow):
         self.saveButton.clicked.connect(self.on_save)
         self.loadButton.clicked.connect(self.on_load)
 
-        self.gradientWindows = [GradientWindow(screen) for screen in screens]
+        self.gradientWindowController = GradientWindowController(screens)
 
         self._load_settings()
 
@@ -203,12 +203,9 @@ class SettingsWindow(QMainWindow):
         delay = QTime(0, 0).secsTo(self.delayInput.time())
         repeat_interval = QTime(0, 0).secsTo(self.repeatInput.time())
 
-        for gradientWindow in self.gradientWindows:
-            gradientWindow.set_colors(colors)
-            gradientWindow.set_timers(delay, repeat_interval)
-
-            gradientWindow.showFullScreen()
-            gradientWindow.run()
+        self.gradientWindowController.set_colors(colors)
+        self.gradientWindowController.set_timers(delay, repeat_interval)
+        self.gradientWindowController.run()
 
     @pyqtSlot()
     def on_save(self):
